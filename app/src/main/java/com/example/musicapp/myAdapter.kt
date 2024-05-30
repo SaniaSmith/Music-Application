@@ -15,6 +15,9 @@ import com.squareup.picasso.Picasso
 class myAdapter(val context : Activity, val dataList : List<Data>) :
     RecyclerView.Adapter<myAdapter.myViewHolder>(){
 
+    var playSong: Data? = null
+    var mediaPlayer: MediaPlayer? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): myViewHolder {
         val itemView = LayoutInflater.from(context).inflate(R.layout.each_item, parent, false)
         return myViewHolder(itemView)
@@ -27,17 +30,26 @@ class myAdapter(val context : Activity, val dataList : List<Data>) :
     override fun onBindViewHolder(holder: myViewHolder, position: Int) {
         val currentData = dataList[position]
 
-        val mediaPlayer = MediaPlayer.create(context, currentData.preview.toUri())
         holder.title.text = currentData.title
 
         Picasso.get().load(currentData.album.cover).into(holder.image)
 
         holder.play.setOnClickListener {
-            mediaPlayer.start()
+            if (playSong != currentData) {
+                mediaPlayer?.pause()
+                mediaPlayer?.release()
+
+                mediaPlayer = MediaPlayer.create(context, currentData.preview.toUri())
+                playSong = currentData
+            }
+
+            mediaPlayer?.start()
         }
 
         holder.pause.setOnClickListener {
-            mediaPlayer.stop()
+            if (playSong == currentData) {
+                mediaPlayer?.pause()
+            }
         }
     }
 
